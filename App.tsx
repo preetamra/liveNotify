@@ -1,12 +1,6 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React,{
+  useState
+} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -15,83 +9,72 @@ import {
   Text,
   useColorScheme,
   View,
+  Button,
+  NativeModules,
+  TextInput
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const {CustomModule} = NativeModules;
+  const [source,setSource] = useState("");
+  const [sourceTime,setSourceTime] = useState("");
+  const [des,setDes] = useState("");
+  const [desTime,setDesTime] = useState("");
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={{
+      flex: 1,
+      backgroundColor: '#fff',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+     <Button title="Click Me" onPress={() => {
+      (async () => {
+        try{
+          let result = await CustomModule.createNotification();
+          console.log(result);
+        }catch(e) {
+          console.log(e);
+        }
+      })();
+     }} ></Button>
+     <View></View>
+     <View></View>
+     <TextInput 
+        style={styles.inputView}  
+        placeholder='Source'
+        onChangeText={setSource}
+     ></TextInput> 
+     <TextInput 
+        onChangeText={setSourceTime}
+        style={styles.inputView}
+        placeholder='Source Time'
+      ></TextInput>
+      <TextInput 
+        onChangeText={setDes}
+        style={styles.inputView}
+        placeholder='Destination'
+      ></TextInput>
+      <TextInput 
+        onChangeText={setDesTime}
+        style={styles.inputView}
+        placeholder='Destination Time'
+      ></TextInput>
+      <Button
+      title='send to native notification'
+      onPress={() => {
+        (async () => {
+          try{
+            let result = await CustomModule.updateNotification(source,sourceTime,des,desTime,"6E2486");
+            console.log(result);
+          }catch(e) {
+            console.log(e);
+          }
+        })(); 
+     }}
+     ></Button>
     </SafeAreaView>
   );
 }
@@ -113,6 +96,12 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  inputView:{
+    width: '100%',
+    height: 40,
+    backgroundColor: 'white',
+    borderWidth: 1,
+  }
 });
 
 export default App;
